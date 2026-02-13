@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>to my queen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Quicksand:wght@400;600;700&family=Patrick+Hand&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #ff4d4d;
+            --accent: #e11d48;
+            --bg: #0a0a0a;
+            --card: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bg);
+            color: #e5e5e5;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-title { font-family: 'Lobster', cursive; }
+        .font-hand { font-family: 'Patrick Hand', cursive; }
+        .font-script { font-family: 'Caveat', cursive; }
+
+        /* --- Animations --- */
+        @keyframes float-loop {
+            0% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
+            100% { transform: translateY(0) rotate(-2deg); }
+        }
+
+        .animate-float {
+            animation: float-loop 6s ease-in-out infinite;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 15px rgba(225, 29, 72, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(225, 29, 72, 0.7); }
+        }
+
+        /* --- Scroll Reveal --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1.2s cubic-bezier(0.21, 0.85, 0.45, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Dark Polaroid Styling --- */
+        .polaroid-frame {
+            background: #1e1e1e;
+            padding: 12px 12px 48px 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .polaroid-image-container {
+            width: 100%;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            position: relative;
+            background: #111;
+        }
+
+        .polaroid-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.1) brightness(0.9);
+        }
+
+        /* --- Interaction Pop --- */
+        @keyframes pop-out {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(0); opacity: 0; visibility: hidden; }
+        }
+
+        .popping {
+            animation: pop-out 0.4s forwards ease-in;
+        }
+
+        /* --- Background Decoration --- */
+        .fixed-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1a0a0a 0%, #0a0a0a 100%);
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(225, 29, 72, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* Scroll Progress Bar */
+        #progress {
+            position: fixed;
+            top: 0; left: 0; height: 3px;
+            background: var(--accent);
+            z-index: 100;
+            width: 0%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="flex flex-col items-center">
+
+    <div id="progress"></div>
+
+    <iframe id="bg-music" src="https://audio.com/embed/audio/1857025135163390?theme=image" style="display:none;" allow="autoplay"></iframe>
+
+    <div class="fixed-bg">
+        <div class="bg-glow" style="top: 10%; left: -10%;"></div>
+        <div class="bg-glow" style="bottom: 10%; right: -10%;"></div>
+        <div class="absolute top-20 left-10 text-red-900 opacity-20 text-6xl rotate-12">❤️</div>
+        <div class="absolute bottom-40 right-10 text-red-900 opacity-20 text-4xl -rotate-12">🥀</div>
+    </div>
+
+    <section id="hero" class="min-h-screen w-full flex flex-col items-center justify-center px-6 text-center">
+        <h1 class="font-title text-6xl text-[#ff4d4d] leading-tight mb-4 tracking-wide drop-shadow-[0_2px_10px_rgba(255,77,77,0.5)]">
+            Hello madam,
+        </h1>
+        <p class="font-hand text-2xl text-gray-400 mb-10">I've been waiting for this moment...</p>
+
+        <div class="relative w-72 animate-float mb-12">
+            <div class="polaroid-frame w-full">
+                <div class="polaroid-image-container">
+                    <img id="p-img" src="https://i.postimg.cc/VNMhYP0R/file_0000000039b872069978c9dfeacd03c5.png" class="polaroid-image" alt="Us">
+                </div>
+                <div class="pt-5 pb-1">
+                    <span id="p-cap" class="font-script text-2xl text-red-400/80">With my babe.</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="q-area" class="w-full max-w-xs transition-all duration-500">
+            <h2 class="font-hand text-3xl text-gray-200 mb-12 italic opacity-90">Will you be my Valentine?  </h2>
+            
+            <div id="btn-wrap" class="flex items-center justify-center gap-6 relative h-20">
+                <button id="yes-btn" onclick="celebrate()" style="animation: pulse-red 2s infinite" class="bg-red-600 text-white font-bold py-4 px-10 rounded-full text-xl shadow-2xl z-20 transition-all active:scale-95">
+                    YES ❤️
+                </button>
+                <button id="no-btn" onclick="rejectPop()" class="bg-transparent border-2 border-gray-700 text-gray-500 font-bold py-4 px-8 rounded-full text-lg z-10 hover:border-red-900 transition-all duration-300">
+                    No 🥀
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="story" class="hidden w-full max-w-md px-8 py-20 flex flex-col items-center gap-24">
+        
+        <div class="reveal text-center">
+            <p class="font-title text-5xl text-red-500">To my sweet darling ❤️</p>
+            <p class="font-hand text-2xl mt-6 text-gray-400">Please read this carefully...</p>
+        </div>
+
+        <div class="reveal p-8 rounded-3xl bg-[#151515] border border-red-900/30 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <p class="font-hand text-2xl leading-relaxed text-gray-300">
+                Jershiah, I don't know how to put into words how much you mean to me, but I'll try my best. From the moment we met, I don't know whether we continue till this, your eyes, and your voice made me as yours. We fight, we disappear and we reunite. This is me and that is you. It's us. Just us.
+            </p>
+        </div>
+
+        <div class="reveal">
+            <div class="polaroid-frame w-64 rotate-3">
+                <div class="polaroid-image-container">
+                    <img src="https://i.postimg.cc/8CWY1gfy/file_000000005a787206a4f06f8503407916.png" class="polaroid-image" alt="Memory">
+                </div>
+                <p class="font-script text-2xl mt-4 text-center text-red-400/60">My favorite date.</p>
+            </div>
+        </div>
+
+        <div class="reveal p-8 rounded-3xl bg-[#151515] border border-red-900/30">
+            <p class="font-hand text-2xl leading-relaxed text-gray-300">
+                I love the way we talk for hours about nothing, and the way you understand me without a single word. You don't care that much but I know you are trying your best. I love that.
+            </p>
+        </div>
+
+        <div class="reveal">
+            <div class="polaroid-frame w-64 -rotate-3">
+                <div class="polaroid-image-container">
+                    <img src="https://i.postimg.cc/6QRP9x4Y/file_00000000b6107206900668f935027253.png" class="polaroid-image" alt="Memory 2">
+                </div>
+                <p class="font-script text-2xl mt-4 text-center text-red-400/60">Forever like this.</p>
+            </div>
+        </div>
+
+        <div class="reveal p-8 rounded-3xl bg-[#151515] border border-red-900/30">
+            <p class="font-hand text-2xl leading-relaxed text-gray-300">
+                I want you to know this today. I don't know how much times we fight, but hear this. Only death can stop me from you. I don't know why I'm that craze on you but, I love you. If I shout, slap me, if I yell, hug me, but never leave me. Jershiah, will you be mine?
+            </p>
+        </div>
+
+        <div class="reveal text-center mt-12 pb-24">
+            <p class="font-title text-6xl text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">Forever.</p>
+            <div class="mt-12 text-5xl grayscale opacity-50">🍷 🌹 🖤</div>
+        </div>
+
+    </section>
+
+    <div id="youtube-player" style="display: none;"></div>
+
+    <script>
+        // YouTube Player Setup
+        let player;
+        let playerReady = false;
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '0',
+                width: '0',
+                videoId: 'cNGjD0VG4R8', 
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'loop': 1,
+                    'playlist': 'cNGjD0VG4R8',
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': (e) => { playerReady = true; }
+                }
+            });
+        }
+
+        const photos = [
+            { src: "https://i.postimg.cc/VNMhYP0R/file_0000000039b872069978c9dfeacd03c5.png", cap: "With my babe." },
+            { src: "https://i.postimg.cc/8CWY1gfy/file_000000005a787206a4f06f8503407916.png", cap: "My favorite date." },
+            { src: "https://i.postimg.cc/6QRP9x4Y/file_00000000b6107206900668f935027253.png", cap: "Forever like this." }
+        ];
+        let pIndex = 0;
+
+        setInterval(() => {
+            const img = document.getElementById('p-img');
+            const cap = document.getElementById('p-cap');
+            if(!img) return;
+            img.style.transition = "opacity 0.8s ease-in-out";
+            img.style.opacity = '0';
+            setTimeout(() => {
+                pIndex = (pIndex + 1) % photos.length;
+                img.src = photos[pIndex].src;
+                cap.innerText = photos[pIndex].cap;
+                img.style.opacity = '1';
+            }, 800);
+        }, 5000);
+
+        function rejectPop() {
+            const noBtn = document.getElementById('no-btn');
+            const yesBtn = document.getElementById('yes-btn');
+            const wrap = document.getElementById('btn-wrap');
+            noBtn.classList.add('popping');
+            setTimeout(() => {
+                noBtn.style.display = 'none';
+                wrap.style.gap = '0';
+                yesBtn.style.margin = "0 auto";
+                yesBtn.classList.add('scale-125');
+                yesBtn.innerHTML = "OF COURSE ❤️";
+            }, 400);
+        }
+
+        function celebrate() {
+            const story = document.getElementById('story');
+            
+            // Trigger hidden audio player
+            const bgMusic = document.getElementById('bg-music');
+            bgMusic.src += "&autoplay=1"; 
+
+            // YouTube Fallback
+            if (playerReady && player) {
+                try { player.playVideo(); } catch (e) {}
+            }
+            
+            story.classList.remove('hidden');
+            story.scrollIntoView({ behavior: 'smooth' });
+
+            const end = Date.now() + 4000;
+            const colors = ['#e11d48', '#ffffff', '#4c0519'];
+
+            (function frame() {
+              confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0, y: 0.8 }, colors: colors });
+              confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1, y: 0.8 }, colors: colors });
+              if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("progress").style.width = scrolled + "%";
+
+            const reveals = document.querySelectorAll('.reveal');
+            for (let i = 0; i < reveals.length; i++) {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 120) {
+                    reveals[i].classList.add('active');
+                }
+            }
+        });
+        
+        window.onload = () => {
+            const winHeight = window.innerHeight;
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (el.getBoundingClientRect().top < winHeight) el.classList.add('active');
+            });
+        };
+    </script>
+</body>
+</html>
