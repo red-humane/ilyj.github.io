@@ -216,30 +216,8 @@
 
     </section>
 
-    <div id="youtube-player" style="display: none;"></div>
-
     <script>
-        // YouTube Player Setup
-        let player;
-        let playerReady = false;
 
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('youtube-player', {
-                height: '0',
-                width: '0',
-                videoId: 'cNGjD0VG4R8', 
-                playerVars: {
-                    'autoplay': 0,
-                    'controls': 0,
-                    'loop': 1,
-                    'playlist': 'cNGjD0VG4R8',
-                    'playsinline': 1
-                },
-                events: {
-                    'onReady': (e) => { playerReady = true; }
-                }
-            });
-        }
 
         const photos = [
             { src: "https://i.postimg.cc/VNMhYP0R/file_0000000039b872069978c9dfeacd03c5.png", cap: "With my babe." },
